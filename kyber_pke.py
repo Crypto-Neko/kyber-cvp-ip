@@ -1,11 +1,26 @@
 from sage.all import *
 import random as rand
 
-def kyber_keygen():
-    pass
+# Generate a random binary string--used in keygen
+def gen_rand_bin(n):
+    binary = ''
+    for i in range (n):
+        binary.append(str(rand.randint(0, 1)))
+    
+    return binary
 
-def kyber_encrypt(pk, m):
-    pass
+class kyber_PKE():
+    def __init__(self, n):
+        self.n = n
 
-def kyber_decrypt(sk, c):
-    pass
+    def keygen(self):
+        rho = gen_rand_bin(256)
+        sigma = gen_rand_bin(256)
+
+    def encrypt(self, pk, m):
+        pass
+
+    def decrypt(self, sk, c):
+        pass
+
+
