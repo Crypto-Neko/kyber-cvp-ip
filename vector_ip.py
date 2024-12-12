@@ -21,10 +21,11 @@ mip.set_objective(0)
 x_vars = [[mip.new_variable() for _ in range(kyber.n)] for _ in range(kyber.k)]
 
 # Add constraints such that A*x = b
-for i in range(kyber.k):
-    for j in range(kyber.n):
-            expr = sum(A[i, p].coeffs()[j] * x_vars[p][j] for p in range(kyber.k))
-            mip.add_constraint(expr == b[i].coeffs()[j] % self.q)        
+f1 = A[0, 0]
+f2 = A[0, 1]
+f3 = A[1, 0]
+f4 = A[1, 1]
+
 
 p.show()
 p.solve()
