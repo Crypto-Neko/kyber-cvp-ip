@@ -3,17 +3,21 @@ from kyber512 import kyber512
 
 kyber = kyber512()
 A = kyber.gen_matrix(kyber.k)
-b = kyber.gen_vector(kyber.k)
+w = [kyber.Rq("x^255"), kyber.Rq("0")]
+w = vector(w)
+b = A*w
+print(b)
+print(w)
 
 n = kyber.n
-q = kyber.q
+q = kyber.qim   
 k = kyber.k
 
 mip = MixedIntegerLinearProgram(solver='GLPK')
 mip.set_objective(0)
 
-x = mip.new_variable(integer=True)
-z = mip.new_variable(integer=True)
+x = mip.new_variable(integer=True, nonnegative=True)
+z = mip.new_variable(integer=True, nonnegative=True)
 
 x_vars = [[x[m_idx, j] for j in range(n)] for m_idx in range(k)]
 z_vars = [[z[i, r] for r in range(n)] for i in range(k)]
