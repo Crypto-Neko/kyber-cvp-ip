@@ -1,33 +1,42 @@
 from sage.all import *
-from kyber512 import *
+from kyber512 import kyber512
 
-'''
-Demonstration that integer programming can return a vector in the lattice used in Kyber512.
-The program sets up a kyber512 object, uses the definition of Rq as a constraint, and returns
-a vector of polynomials in Rq. This will be expanded eventually to returned a vector relevant
-to the lattice problem underlying Kyber.
-'''
-
-# Define an instance of Kyber
 kyber = kyber512()
 A = kyber.gen_matrix(kyber.k)
 b = kyber.gen_vector(kyber.k)
 
-# Set up the mixed integer linear program solver
+n = kyber.n
+q = kyber.q
+k = kyber.k
+
 mip = MixedIntegerLinearProgram(solver='GLPK')
 mip.set_objective(0)
 
-# Define variables for MIP
-x_vars = [[mip.new_variable() for _ in range(kyber.n)] for _ in range(kyber.k)]
+x = mip.new_variable(integer=True)
+z = mip.new_variable(integer=True)
 
-# Add constraints such that A*x = b
-f1 = A[0, 0]
-f2 = A[0, 1]
-f3 = A[1, 0]
-f4 = A[1, 1]
+x_vars = [[x[m_idx, j] for j in range(n)] for m_idx in range(k)]
+z_vars = [[z[i, r] for r in range(n)] for i in range(k)]
 
+for i in range(k):
+    # Convert b[i] from field elements to integers
+    b_coeffs = [int(c) for c in b[i].list()]
+    for r in range(n):
+        expr = 0
+        for m_idx in range(k):
+            Aim_coeffs = A[i,m_idx].list()
+            for j in range(n):
+                s = (r - j) % n
+                sign = -1 if (r - j) < 0 else 1
+                expr += int(Aim_coeffs[j]) * x_vars[m_idx][s] * sign
+        mip.add_constraint(expr - b_coeffs[r] - q*z_vars[i][r] == 0)
 
-p.show()
-p.solve()
+print("About to solve MIP.")
+mip.solver_parameter("msg_lev_intopt", 3)
+mip.solver_parameter("msg_lev_simplex", 3)
+mip.solve()
+x_solution = [[mip.get_values(x_vars[m_idx][j]) for j in range(n)] for m_idx in range(k)]
 
+for m_idx in range(k):
+    print([int(round(val)) for val in x_solution[m_idx]])
 
