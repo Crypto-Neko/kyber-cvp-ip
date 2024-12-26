@@ -10,7 +10,7 @@ print(b)
 print(w)
 
 n = kyber.n
-q = kyber.qim   
+q = kyber.q
 k = kyber.k
 
 mip = MixedIntegerLinearProgram(solver='GLPK')
